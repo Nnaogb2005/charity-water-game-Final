@@ -1,420 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Come Home Water</title>
 
-<link rel="stylesheet" href="style.css">
+<!-- FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 
 <!-- Confetti -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+<style>
+/* GLOBAL */
+*{
+  box-sizing:border-box;
+  touch-action:manipulation;
+}
+html, body{
+  margin:0;
+  padding:0;
+  font-family:"Montserrat","Segoe UI",Arial;
+  background:linear-gradient(#7cc7ff,#2e9df7);
+  min-height:100vh;
+}
+body{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+}
+
+/* LOGO */
+img.logo{
+  width:120px;
+  margin-top:15px;
+}
+
+/* GAME FRAME */
+.game-frame{
+  width:700px;
+  height:auto;
+  background:white;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px;
+  margin-top:20px;
+  text-align:center;
+}
+
+h1{
+  margin:10px 0;
+  color:#1b3c59;
+}
+
+/* HEADER */
+.header-bar{
+  width:100%;
+  background:#ffc907;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-radius:10px;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+button, select{
+  background:#1e73be;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+button:hover{
+  background:#155a91;
+}
+
+/* GAME AREA */
+.game-container{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:center;
+  width:100%;
+}
+
+.tank,.house{
+  font-size:36px;
+  margin:10px 0;
+}
+
+/* BOARD */
+#board{
+  display:grid;
+  grid-template-columns:repeat(8,60px);
+  grid-template-rows:repeat(8,60px);
+  gap:4px;
+  background:#d8eaf7;
+  border-radius:12px;
+  padding:8px;
+}
+
+.cell{
+  background:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  border-radius:6px;
+  cursor:pointer;
+  position:relative;
+}
+.cell.placed{background:#b3e5fc;}
+.cell.broken{background:#ffb3b3;}
+
+/* PIPE BAR */
+.pipe-bar{
+  width:100%;
+  background:#f5f7fb;
+  padding:12px;
+  border-radius:10px;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.pipe{
+  font-size:30px;
+  padding:10px;
+  background:white;
+  cursor:pointer;
+  border-radius:6px;
+}
+
+.pipe.selected{
+  border:3px solid #1e73be;
+}
+
+/* STAR */
+.star{
+  position:absolute;
+  top:4px;
+  right:6px;
+}
+
+/* ENEMY */
+.enemy{
+  position:absolute;
+  top:4px;
+  left:6px;
+}
+
+/* POPUP */
+.popup-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  padding:15px;
+}
+.popup-box{
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  width:100%;
+  max-width:420px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+.popup-box ul{
+  text-align:left;
+  margin:15px 0;
+  padding-left:20px;
+}
+
+/* FOOTER */
+.footer{
+  color:white;
+  text-align:center;
+  margin:20px 0 40px 0;
+  font-size:14px;
+}
+.footer a{
+  color:#ffc907;
+  text-decoration:none;
+  font-weight:bold;
+}
+.footer a:hover{
+  text-decoration:underline;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  .game-frame{
+    width:100%;
+    height:auto;
+    padding:15px;
+  }
+  #board{
+    grid-template-columns:repeat(8,1fr);
+  }
+  .cell{
+    aspect-ratio:1/1;
+    font-size:20px;
+  }
+  .pipe{
+    font-size:24px;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <!-- INSTRUCTION POPUP -->
-
 <div id="instructionPopup" class="popup-overlay">
-
-<div class="popup-box">
-
-<h2>💧 How To Play</h2>
-
-<p>Welcome to <b>Come Home Water!</b></p>
-
-<ul>
-<li>Select a pipe piece and click a grid cell to place it.</li>
-<li>Each pipe gives <b>+10 points</b>.</li>
-<li>Collect ⭐ stars for <b>+100 points</b>.</li>
-<li>Click the 🐀 mouse before it escapes for <b>+20 points</b>.</li>
-<li>If the mouse escapes you lose <b>-10 points</b>.</li>
-<li>The mouse may destroy pipes.</li>
-<li>Collect <b>5 stars</b> to win the game!</li>
-</ul>
-
-<button id="startGameBtn">Start Game</button>
-
+  <div class="popup-box">
+    <h2>💧 How To Play 💧</h2>
+    <ul>
+      <li>Select a pipe piece and click a grid cell to place it.</li>
+      <li>Each pipe gives <b>+10 points</b>.</li>
+      <li>Collect ⭐ stars for <b>+100 points</b>.</li>
+      <li>Click the 🐀 mouse before it escapes for <b>+20 points</b>.</li>
+      <li>If the mouse escapes you lose <b>-10 points</b>.</li>
+      <li>The mouse may destroy pipes.</li>
+      <li>Get the pipeline to the <b>house</b> to win the game!</li>
+    </ul>
+    <button id="startGameBtn">Start Game</button>
+    <select id="difficulty">
+      <option value="easy">Easy</option>
+      <option value="normal" selected>Normal</option>
+      <option value="hard">Hard</option>
+    </select>
+  </div>
 </div>
-</div>
-
-
-<!-- MAIN GAME -->
 
 <div class="game-frame">
+  <img src="img/cw_vertical_white.jpg" class="logo">
+  <h1>💧 Come Home Water 💧</h1>
 
-<img src="img/cw_vertical_white.jpg" class="logo">
+  <div class="header-bar">
+    <div>Score: <span id="score">0</span></div>
+    <div>Stars: <span id="stars">0</span></div>
+    <button id="resetBtn">Reset</button>
+  </div>
 
-<h1>💧 Come Home Water</h1>
+  <div class="game-container">
+    <div class="tank">🛢️</div>
+    <div id="board"></div>
+    <div class="house">🏠</div>
+  </div>
 
-<div class="header-bar">
-
-<div>Score: <span id="score">0</span></div>
-<div>Stars: <span id="stars">0</span></div>
-
-<button id="resetBtn">Reset</button>
-
+  <div class="pipe-bar">
+    <div class="pipe">═</div>
+    <div class="pipe">╚</div>
+    <div class="pipe">╬</div>
+    <div class="pipe">║</div>
+    <div class="pipe">╝</div>
+    <div class="pipe">╩</div>
+    <div class="pipe">╔</div>
+    <div class="pipe">╗</div>
+    <div class="pipe">╦</div>
+  </div>
 </div>
-
-
-<div class="game-container">
-
-<div class="tank">💧</div>
-
-<div id="board"></div>
-
-<div class="house">🏠</div>
-
-</div>
-
-
-<div class="pipe-bar">
-
-<div class="pipe">═</div>
-<div class="pipe">╚</div>
-<div class="pipe">╬</div>
-<div class="pipe">║</div>
-<div class="pipe">╝</div>
-<div class="pipe">╩</div>
-<div class="pipe">╔</div>
-<div class="pipe">╗</div>
-<div class="pipe">╦</div>
-
-</div>
-
-</div>
-
 
 <!-- WIN SCREEN -->
-
 <div id="winScreen" class="popup-overlay" style="display:none;">
-
-<div class="popup-box">
-
-<h2>🎉 Congratulations!</h2>
-
-<p>You successfully delivered clean water to the house!</p>
-
-<p>Your final score: <span id="finalScore">0</span></p>
-
-<button id="playAgainBtn">Play Again</button>
-
+  <div class="popup-box">
+    <h2>🎉 Congratulations!</h2>
+    <p>You successfully delivered clean water to the house!</p>
+    <p>Score: <span id="finalScore"></span></p>
+    <button id="playAgainBtn">Play Again</button>
+  </div>
 </div>
 
+<!-- FOOTER -->
+<div class="footer">
+  <p>Learn more about our mission:</p>
+  <a href="https://www.charitywater.org/" target="_blank">charity: water</a> |
+  <a href="https://www.charitywater.org/donate" target="_blank">Donate</a>
 </div>
-
 
 <script src="script.js"></script>
-
 </body>
 </html>
-<style>
-/* GLOBAL */
-
-*{
-box-sizing:border-box;
-touch-action:manipulation;
-}
-
-html,body{
-margin:0;
-padding:0;
-height:100%;
-font-family:"Segoe UI",Arial;
-background:linear-gradient(#7cc7ff,#2e9df7);
-display:flex;
-justify-content:center;
-align-items:center;
-}
-
-/* GAME FRAME */
-
-.game-frame{
-width:700px;
-height:700px;
-background:white;
-border-radius:20px;
-box-shadow:0 15px 40px rgba(0,0,0,0.25);
-display:flex;
-flex-direction:column;
-align-items:center;
-padding:20px;
-text-align:center;
-}
-
-/* LOGO */
-
-.logo{
-width:140px;
-margin-bottom:10px;
-}
-
-h1{
-margin-top:0;
-color:#1b3c59;
-}
-
-/* HEADER */
-
-.header-bar{
-width:100%;
-background:#ffc907;
-padding:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-radius:10px;
-font-weight:bold;
-margin-bottom:15px;
-}
-
-button{
-background:#1e73be;
-color:white;
-border:none;
-padding:8px 14px;
-border-radius:6px;
-cursor:pointer;
-}
-
-button:hover{
-background:#155a91;
-}
-
-/* GAME AREA */
-
-.game-container{
-flex:1;
-display:flex;
-flex-direction:column;
-justify-content:space-around;
-align-items:center;
-width:100%;
-}
-
-.tank,.house{
-font-size:36px;
-}
-
-/* BOARD */
-
-#board{
-display:grid;
-grid-template-columns:repeat(8,60px);
-grid-template-rows:repeat(8,60px);
-gap:4px;
-background:#d8eaf7;
-border-radius:12px;
-padding:8px;
-}
-
-/* CELLS */
-
-.cell{
-background:white;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:28px;
-border-radius:6px;
-cursor:pointer;
-position:relative;
-transition:background .3s,transform .2s;
-}
-
-.cell:hover{
-background:#e6f3ff;
-}
-
-.cell.placed{
-background:#b3e5fc;
-transform:scale(1.05);
-}
-
-/* PIPE BAR */
-
-.pipe-bar{
-width:100%;
-background:#f5f7fb;
-padding:12px;
-border-radius:10px;
-display:flex;
-justify-content:center;
-gap:10px;
-flex-wrap:wrap;
-}
-
-/* PIPES */
-
-.pipe{
-font-size:32px;
-padding:10px 15px;
-background:white;
-border-radius:8px;
-box-shadow:0 3px 8px rgba(0,0,0,0.15);
-cursor:pointer;
-transition:.2s;
-}
-
-.pipe:hover{
-transform:scale(1.1);
-}
-
-.pipe.selected{
-border:3px solid #1e73be;
-box-shadow:0 0 15px rgba(30,115,190,0.5);
-}
-
-/* STARS */
-
-.star{
-position:absolute;
-top:4px;
-right:6px;
-font-size:20px;
-}
-
-.star.animate{
-animation:pop .5s ease-out forwards;
-}
-
-@keyframes pop{
-0%{transform:scale(0);opacity:0;}
-50%{transform:scale(1.2);opacity:1;}
-100%{transform:scale(1);opacity:1;}
-}
-
-/* ENEMY */
-
-.enemy{
-position:absolute;
-top:4px;
-left:6px;
-font-size:20px;
-}
-
-/* PIPE BREAK */
-
-.cell.broken{
-background:#ffb3b3;
-animation:shake .3s;
-}
-
-@keyframes shake{
-0%{transform:translateX(0)}
-25%{transform:translateX(-3px)}
-50%{transform:translateX(3px)}
-75%{transform:translateX(-3px)}
-100%{transform:translateX(0)}
-}
-
-/* POPUPS */
-
-.popup-overlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.6);
-display:flex;
-justify-content:center;
-align-items:center;
-z-index:1000;
-}
-
-.popup-box{
-background:white;
-padding:30px;
-border-radius:15px;
-width:420px;
-text-align:center;
-box-shadow:0 10px 30px rgba(0,0,0,.4);
-}
-
-.popup-box ul{
-text-align:left;
-margin:15px 0;
-}
-
-/* =========================
-   MOBILE SUPPORT
-========================= */
-
-@media (max-width:768px){
-
-html,body{
-height:auto;
-padding:10px;
-align-items:flex-start;
-}
-
-/* Game container adjusts */
-
-.game-frame{
-width:100%;
-height:auto;
-padding:15px;
-}
-
-/* Title smaller */
-
-h1{
-font-size:22px;
-}
-
-/* Header */
-
-.header-bar{
-font-size:14px;
-padding:10px;
-}
-
-/* Tank + house */
-
-.tank,.house{
-font-size:28px;
-}
-
-/* Board scales */
-
-#board{
-width:100%;
-grid-template-columns:repeat(8,1fr);
-grid-template-rows:repeat(8,1fr);
-}
-
-/* Cells resize */
-
-.cell{
-font-size:20px;
-aspect-ratio:1/1;
-}
-
-/* Pipes easier to tap */
-
-.pipe{
-font-size:26px;
-padding:12px 16px;
-}
-
-/* Pipe layout */
-
-.pipe-bar{
-gap:8px;
-flex-wrap:wrap;
-}
-
-/* Popup fits phone */
-
-.popup-box{
-width:90%;
-padding:20px;
-}
-
-}
-</style>
