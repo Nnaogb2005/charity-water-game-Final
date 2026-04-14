@@ -1,5 +1,7 @@
-# Charity: water Game Prototype
 
-In this project, you’ll begin transforming your game concept from last week into a working interactive prototype using HTML, CSS, and JavaScript.
+In this project, the user will be delivering clean water to the house, while also trying to collect stars and avoiding enemies along the way
 
-This first version should focus on core functionality — clickable elements, score tracking, and a basic layout. The goal is to bring your idea to life with simple, working mechanics that you’ll refine and expand in the next milestone.
+#Dev notes
+-I wanted to create a game that relies on the player to deliver the water to the house while there are obstacles in the way. So I took inspiration from games I played when I was younger, which were Disney's Where's my Water? and Tower defense.
+
+- I also wanted make the game have different difficulties. So I implamented options of Easy, Normal, and Hard.
